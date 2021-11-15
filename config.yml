@@ -1,0 +1,14 @@
+listen_address: localhost:3000
+cert_file: ./server.crt
+key_file: ./server.key
+
+# this section will be used for Token Authorization
+api:
+  domain: http://localhost:3000
+  signing_secret: "your-super-secret"
+
+database:
+    addr: 127.0.0.1:3306
+    username: root
+    password: autoOrderCENG415
+    db_name: autoOrder
