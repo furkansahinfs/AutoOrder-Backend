@@ -2,11 +2,14 @@ package server
 
 import (
 	"context"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/api"
+	"github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/service"
 	"github.com/gorilla/mux"
@@ -55,8 +58,20 @@ func (i *Instance) Start() {
 		logrus.WithError(err).Fatal("Could not create service provider")
 	}
 
+	var errJson model.ErrorJson
+	file, err := ioutil.ReadFile("D:\\Users\\selah\\Documents\\GitHub\\AutoOrder-Backend\\pkg\\errors\\errors_en.json")
+	if err != nil {
+		logrus.WithError(err).Fatal("Error parsing errors_en.json")
+		return
+	}
+	err = json.Unmarshal(file, &errJson)
+	if err != nil {
+		logrus.WithError(err).Fatal("Error parsing errors_en.json")
+		return
+	}
+
 	// Initialize API
-	i.API, err = api.New(i.Config.API, i.Service, router)
+	i.API, err = api.New(i.Config.API, i.Service, router, errJson)
 	if err != nil {
 		logrus.WithError(err).Fatal("Could not create API instance")
 	}
