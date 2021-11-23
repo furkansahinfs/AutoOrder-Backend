@@ -1,6 +1,10 @@
 package user
 
 import (
+	"errors"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -15,13 +19,31 @@ func NewService(repo repository.Repository) (*Service, error) {
 	}, nil
 }
 
-/* func (s *Service) Login(user model.User, signingKey string) (*model.User, error) {
+func (s *Service) Login(user model.User, signingKey string) (*model.User, error) {
+	//Get user from
 	u, err := s.repository.GetUserRepository().GetUser(user)
 	if err != nil {
 		return nil, err
 	}
+	if checkPasswordHash(user.Password, u.Password) {
+		return nil, errors.New("error when hassing requested User's password")
+	}
+	u.Password = ""
+	claims := jwt.MapClaims{}
+	claims["email"] = u.Email
+	claims["fullName"] = u.FullName
+
+	token, err := createJWT(claims, signingKey)
+	if err != nil {
+		return nil, err
+	}
+	u.Token = token
+	return u, nil
 }
-*/
+
+func (s *Service) Register(user model.User, signingKey string) (*model.User, error) {
+	return nil, nil
+}
 
 //Hash a password and return a string
 func hashPassword(password string) (string, error) {
@@ -33,4 +55,14 @@ func hashPassword(password string) (string, error) {
 func checkPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
+}
+func createJWT(claims jwt.MapClaims, signingSecret string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	tokenString, err := token.SignedString([]byte(signingSecret))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }

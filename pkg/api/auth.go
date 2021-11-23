@@ -17,7 +17,14 @@ func (a *API) Login(w http.ResponseWriter, r *http.Request) {
 		response.Errorf(w, r, fmt.Errorf("error getting login info: %v", err), http.StatusBadRequest, a.errors[0].Message)
 		return
 	}
-	a.service.GetUserService()
+	dbUser, err := a.service.GetUserService().Login(user, a.config.SigningSecret)
+	if err != nil {
+		response.Errorf(w, r, fmt.Errorf("error getting login info: %v", err), http.StatusBadRequest, a.errors[1].Message)
+		return
+	}
+	response.Write(w, r, dbUser)
+	return
+
 }
 
 //Register endpoints responsible from user register

@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,4 +39,16 @@ func (a *API) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+// createJWT creates, signs, and encodes a JWT token using the HMAC signing method
+func (a *API) createJWT(claims jwt.MapClaims) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	tokenString, err := token.SignedString([]byte(a.config.SigningSecret))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }
