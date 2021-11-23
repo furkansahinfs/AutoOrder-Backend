@@ -17,6 +17,7 @@ func (a *API) Login(w http.ResponseWriter, r *http.Request) {
 		response.Errorf(w, r, fmt.Errorf("error getting login info: %v", err), http.StatusBadRequest, a.errors[0].Message)
 		return
 	}
+	a.service.GetUserService()
 }
 
 //Register endpoints responsible from user register
