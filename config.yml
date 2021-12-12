@@ -2,6 +2,7 @@ listen_address: localhost:8080
 cert_file: ./server.crt
 key_file: ./server.key
 
+errorFilePath: "D:\\Users\\selah\\Documents\\GitHub\\AutoOrder-Backend\\pkg\\errors\\errors_en.json"
 # this section will be used for Token Authorization
 api:
   domain: http://localhost:3000

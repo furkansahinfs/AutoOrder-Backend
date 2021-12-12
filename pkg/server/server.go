@@ -21,9 +21,10 @@ type Config struct {
 	CertFile      string `yaml:"cert_file"`
 	KeyFile       string `yaml:"key_file"`
 
-	API     *api.Config             `yaml:"api"`
-	Service *service.Config         `yaml:"service"`
-	DB      *repository.MySQLConfig `yaml:"database"`
+	API           *api.Config             `yaml:"api"`
+	Service       *service.Config         `yaml:"service"`
+	DB            *repository.MySQLConfig `yaml:"database"`
+	ErrorFilePath string                  `yaml:"errorFilePath"`
 }
 
 // Instance represents an instance of the server
@@ -59,7 +60,7 @@ func (i *Instance) Start() {
 	}
 
 	var errJson model.ErrorJson
-	file, err := ioutil.ReadFile("D:\\Users\\selah\\Documents\\GitHub\\AutoOrder-Backend\\pkg\\errors\\errors_en.json")
+	file, err := ioutil.ReadFile(i.Config.ErrorFilePath)
 	if err != nil {
 		logrus.WithError(err).Fatal("Error parsing errors_en.json")
 		return
