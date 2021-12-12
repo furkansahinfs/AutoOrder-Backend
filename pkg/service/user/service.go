@@ -41,8 +41,21 @@ func (s *Service) Login(user model.User, signingKey string) (*model.User, error)
 	return u, nil
 }
 
-func (s *Service) Register(user model.User, signingKey string) (*model.User, error) {
-	return nil, nil
+func (s *Service) SignUp(user model.User) (*model.User, error) {
+	u, err := s.repository.GetUserRepository().StoreUser(user)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+
+func (s *Service) CheckExistByMail(user model.User) (bool, error) {
+	found, err := s.repository.GetUserRepository().CheckExist(user)
+	if err != nil {
+		return false, err
+	}
+
+	return found, nil
 }
 
 //Hash a password and return a string

@@ -37,7 +37,7 @@ func New(config *Config, svc service.Service, router *mux.Router, errors model.E
 
 	// auth endpoints
 	api.Router.HandleFunc("/api/v1/login", api.corsMiddleware(api.logMiddleware(api.Login))).Methods("POST")
-	//api.Router.HandleFunc("/api/v1/signup", api.corsMiddleware(api.logMiddleware(api.SignUP))).Methods("POST")
+	api.Router.HandleFunc("/api/v1/signup", api.corsMiddleware(api.logMiddleware(api.SignUp))).Methods("POST")
 	return api, nil
 
 }

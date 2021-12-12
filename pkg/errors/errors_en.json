@@ -6,5 +6,21 @@
     {
 		"id": 2,
 		"message": "There is an error in login because I could not found user"
+	},
+	{
+		"id": 3,
+		"message": "There is an error in signup because I could not parse"
+	},
+	{
+		"id": 4,
+		"message": "There is an error in signup because when checking any user in db with same mail some error occured"
+	},
+	{
+		"id": 5,
+		"message": "There is an error in signup because I could not store user to db(some infos missing)"
+	},
+	{
+		"id": 6,
+		"message": "There is an error in signup because there is a user with same email"
 	}
 ]

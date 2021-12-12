@@ -57,3 +57,32 @@ func (r *MySQLRepository) GetUser(user model.User) (*model.User, error) {
 
 	return u, nil
 }
+
+func (r *MySQLRepository) CheckExist(user model.User) (bool, error) {
+	var exists bool
+	row := r.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM `+tableName+` WHERE email=? )`, user.Email)
+	if err := row.Scan(&exists); err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
+func (r *MySQLRepository) StoreUser(user model.User) (*model.User, error) {
+	stmt, err := r.db.Prepare(`INSERT INTO ` + tableName + `(
+		email, password, full_name)
+		VALUES(
+			?,?,?)`)
+	if err != nil {
+		return nil, err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		user.Email, user.Password, user.FullName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

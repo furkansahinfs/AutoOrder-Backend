@@ -1,4 +1,4 @@
-listen_address: localhost:8080
+listen_address: 0.0.0.0:8080
 cert_file: ./server.crt
 key_file: ./server.key
 

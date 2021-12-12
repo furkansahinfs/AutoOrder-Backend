@@ -28,6 +28,31 @@ func (a *API) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 //Register endpoints responsible from user register
-func (a *API) Register(w http.ResponseWriter, r *http.Request) {
-
+func (a *API) SignUp(w http.ResponseWriter, r *http.Request) {
+	var user model.User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		response.Errorf(w, r, fmt.Errorf("error getting signup info: %v", err), http.StatusBadRequest, a.errors[2].Message)
+		return
+	}
+	if user.Email == "" {
+		response.Errorf(w, r, fmt.Errorf("error getting signup info: %v", err), http.StatusBadRequest, a.errors[2].Message)
+		return
+	}
+	found, err := a.service.GetUserService().CheckExistByMail(user)
+	if err != nil {
+		response.Errorf(w, r, fmt.Errorf("error getting signup info: %v", err), http.StatusBadRequest, a.errors[3].Message)
+		return
+	}
+	if !found {
+		u, err := a.service.GetUserService().SignUp(user)
+		if err != nil {
+			response.Errorf(w, r, fmt.Errorf("error getting signup info: %v", err), http.StatusBadRequest, a.errors[4].Message)
+			return
+		}
+		response.Write(w, r, u)
+		return
+	}
+	response.Errorf(w, r, fmt.Errorf("error getting signup info: %v", err), http.StatusBadRequest, a.errors[5].Message)
+	return
 }
