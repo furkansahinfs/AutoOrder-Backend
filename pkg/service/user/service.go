@@ -2,11 +2,17 @@ package user
 
 import (
 	"errors"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	ErrInvalidToken = errors.New("token is invalid")
+	ErrExpiredToken = errors.New("token has expired")
 )
 
 type Service struct {
@@ -25,15 +31,16 @@ func (s *Service) Login(user model.User, signingKey string) (*model.User, error)
 	if err != nil {
 		return nil, err
 	}
-	if checkPasswordHash(user.Password, u.Password) {
-		return nil, errors.New("error when hassing requested User's password")
+	samePassword, err := checkPasswordHash(user.Password, u.Password)
+	if err != nil {
+		return nil, err
+	}
+	if !samePassword {
+
+		return nil, errors.New("username or password wrong")
 	}
 	u.Password = ""
-	claims := jwt.MapClaims{}
-	claims["email"] = u.Email
-	claims["fullName"] = u.FullName
-
-	token, err := createJWT(claims, signingKey)
+	token, err := CreateToken(u.Email, time.Minute*5, signingKey)
 	if err != nil {
 		return nil, err
 	}
@@ -42,11 +49,26 @@ func (s *Service) Login(user model.User, signingKey string) (*model.User, error)
 }
 
 func (s *Service) SignUp(user model.User) (*model.User, error) {
+	hash, err := hashPassword(user.Password)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = hash
 	u, err := s.repository.GetUserRepository().StoreUser(user)
 	if err != nil {
 		return nil, err
 	}
+	u.Password = ""
 	return u, nil
+}
+
+func (s *Service) RefreshToken(user *model.User, signingKey string) (*model.User, error) {
+	token, err := CreateToken(user.Email, time.Minute*5, signingKey)
+	if err != nil {
+		return nil, err
+	}
+	user.Token = token
+	return user, nil
 }
 
 func (s *Service) CheckExistByMail(user model.User) (bool, error) {
@@ -65,17 +87,46 @@ func hashPassword(password string) (string, error) {
 }
 
 //Checks password
-func checkPasswordHash(password, hash string) bool {
+func checkPasswordHash(password, hash string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
 }
-func createJWT(claims jwt.MapClaims, signingSecret string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString([]byte(signingSecret))
+// Payload contains the payload data of the token
+type Payload struct {
+	Email     string    `json:"email"`
+	IssuedAt  time.Time `json:"issued_at"`
+	ExpiredAt time.Time `json:"expired_at"`
+}
+
+// NewPayload creates a new token payload with a specific username and duration
+func NewPayload(email string, duration time.Duration) (*Payload, error) {
+	payload := &Payload{
+		Email:     email,
+		IssuedAt:  time.Now(),
+		ExpiredAt: time.Now().Add(duration),
+	}
+	return payload, nil
+}
+
+// Valid checks if the token payload is valid or not
+func (payload *Payload) Valid() error {
+	if time.Now().After(payload.ExpiredAt) {
+		return ErrExpiredToken
+	}
+	return nil
+}
+
+// CreateToken creates a new token for a specific username and duration
+func CreateToken(email string, duration time.Duration, signingkey string) (string, error) {
+	payload, err := NewPayload(email, duration)
 	if err != nil {
 		return "", err
 	}
 
-	return tokenString, nil
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
+	return jwtToken.SignedString([]byte(signingkey))
 }

@@ -1,7 +1,10 @@
 package api
 
 import (
+	"errors"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
@@ -9,6 +12,11 @@ import (
 
 // ContextKey implements type for context key
 type ContextKey string
+
+var (
+	ErrInvalidToken = errors.New("token is invalid")
+	ErrExpiredToken = errors.New("token has expired")
+)
 
 // ContextJWTKey is the key for the jwt context value
 const ContextJWTKey ContextKey = "jwt"
@@ -41,14 +49,88 @@ func (a *API) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
-// createJWT creates, signs, and encodes a JWT token using the HMAC signing method
-func (a *API) createJWT(claims jwt.MapClaims) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+// Payload contains the payload data of the token
+type Payload struct {
+	Email     string    `json:"email"`
+	IssuedAt  time.Time `json:"issued_at"`
+	ExpiredAt time.Time `json:"expired_at"`
+}
 
-	tokenString, err := token.SignedString([]byte(a.config.SigningSecret))
-	if err != nil {
-		return "", err
+// NewPayload creates a new token payload with a specific username and duration
+func NewPayload(email string, duration time.Duration) (*Payload, error) {
+	payload := &Payload{
+		Email:     email,
+		IssuedAt:  time.Now(),
+		ExpiredAt: time.Now().Add(duration),
+	}
+	return payload, nil
+}
+
+// Valid checks if the token payload is valid or not
+func (payload *Payload) Valid() error {
+	if time.Now().After(payload.ExpiredAt) {
+		return ErrExpiredToken
+	}
+	return nil
+}
+
+// VerifyToken checks if the token is valid or not
+func (a *API) jwtmiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Get authentication header
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		// Check if authentication token is present
+		authHeaderParts := strings.Split(authHeader, " ")
+		if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		payload, err := a.verifyToken(authHeaderParts[1], a.config.SigningSecret)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		err = payload.Valid()
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (a *API) verifyToken(token string, signingkey string) (*Payload, error) {
+	keyFunc := func(token *jwt.Token) (interface{}, error) {
+		_, ok := token.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, ErrInvalidToken
+		}
+		return []byte(signingkey), nil
 	}
 
-	return tokenString, nil
+	jwtToken, err := jwt.ParseWithClaims(token, &Payload{}, keyFunc)
+	if err != nil {
+		verr, ok := err.(*jwt.ValidationError)
+		if ok && errors.Is(verr.Inner, ErrExpiredToken) {
+			return nil, ErrExpiredToken
+		}
+		return nil, ErrInvalidToken
+	}
+
+	payload, ok := jwtToken.Claims.(*Payload)
+	if !ok {
+		return nil, ErrInvalidToken
+	}
+
+	return payload, nil
 }

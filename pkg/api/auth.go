@@ -17,14 +17,44 @@ func (a *API) Login(w http.ResponseWriter, r *http.Request) {
 		response.Errorf(w, r, fmt.Errorf("error getting login info: %v", err), http.StatusBadRequest, a.errors[0].Message)
 		return
 	}
-	dbUser, err := a.service.GetUserService().Login(user, a.config.SigningSecret)
+	u, err := a.service.GetUserService().Login(user, a.config.SigningSecret)
 	if err != nil {
 		response.Errorf(w, r, fmt.Errorf("error getting login info: %v", err), http.StatusBadRequest, a.errors[1].Message)
 		return
 	}
-	response.Write(w, r, dbUser)
+	response.Write(w, r, u)
 	return
 
+}
+
+//Login endpoints responsible from user login
+func (a *API) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	var user model.User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		response.Errorf(w, r, fmt.Errorf("error getting login info: %v", err), http.StatusBadRequest, a.errors[0].Message)
+		return
+	}
+	_, err = a.verifyToken(user.Token, a.config.SigningSecret)
+	if err != nil {
+		if err.Error() == "token has expired" {
+			u, err := a.service.GetUserService().RefreshToken(&user, a.config.SigningSecret)
+			if err != nil {
+				response.Errorf(w, r, fmt.Errorf("error getting refresh info: %v", err), http.StatusBadRequest, a.errors[1].Message)
+				return
+			}
+			response.Write(w, r, u)
+			return
+
+		} else {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+	}
+	response.Write(w, r, user)
+	return
 }
 
 //Register endpoints responsible from user register

@@ -62,7 +62,7 @@ func (i *Instance) Start() {
 	var errJson model.ErrorJson
 	file, err := ioutil.ReadFile(i.Config.ErrorFilePath)
 	if err != nil {
-		logrus.WithError(err).Fatal("Error parsing errors_en.json")
+		logrus.WithError(err).Fatal("Error not found errors_en.json")
 		return
 	}
 	err = json.Unmarshal(file, &errJson)
