@@ -78,7 +78,7 @@ func (r *MySQLRepository) StoreUser(user model.User) (*model.User, error) {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		user.Email, user.Password, user.FullName)
+		user.Email, user.Password)
 	if err != nil {
 		return nil, err
 	}
