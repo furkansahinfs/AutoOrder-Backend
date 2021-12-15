@@ -12,7 +12,7 @@ type MySQLRepository struct {
 }
 
 const (
-	tableName = "users"
+	tableName = "userInformations"
 )
 
 const (
