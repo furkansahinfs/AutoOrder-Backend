@@ -63,7 +63,7 @@ func (s *Service) SignUp(user model.User) (*model.User, error) {
 }
 
 func (s *Service) RefreshToken(user *model.User, signingKey string) (*model.User, error) {
-	found, err := s.CheckExistByMail(*user)
+	found, err := s.CheckExistByMail(user.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -79,8 +79,8 @@ func (s *Service) RefreshToken(user *model.User, signingKey string) (*model.User
 
 }
 
-func (s *Service) CheckExistByMail(user model.User) (bool, error) {
-	found, err := s.repository.GetUserRepository().CheckExist(user)
+func (s *Service) CheckExistByMail(mail string) (bool, error) {
+	found, err := s.repository.GetUserRepository().CheckExist(mail)
 	if err != nil {
 		return false, err
 	}

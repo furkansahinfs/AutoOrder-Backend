@@ -108,7 +108,23 @@ func (a *API) jwtmiddleware(next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(w, r)
 	})
 }
+func (a *API) getToken(w http.ResponseWriter, r *http.Request) (string, error) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return "", errors.New("Auth header not found")
+	}
 
+	// Check if authentication token is present
+	authHeaderParts := strings.Split(authHeader, " ")
+	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusUnauthorized)
+		return "", errors.New("bearer header not found")
+
+	}
+	return authHeaderParts[1], nil
+
+}
 func (a *API) verifyToken(token string, signingkey string) (*Payload, error) {
 	keyFunc := func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)

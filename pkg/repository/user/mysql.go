@@ -57,9 +57,9 @@ func (r *MySQLRepository) GetUser(user model.User) (*model.User, error) {
 	return u, nil
 }
 
-func (r *MySQLRepository) CheckExist(user model.User) (bool, error) {
+func (r *MySQLRepository) CheckExist(mail string) (bool, error) {
 	var exists bool
-	row := r.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM `+tableName+` WHERE email=? )`, user.Email)
+	row := r.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM `+tableName+` WHERE email=? )`, mail)
 	if err := row.Scan(&exists); err != nil {
 		return false, err
 	}

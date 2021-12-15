@@ -4,7 +4,7 @@ import "github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
 
 type Reader interface {
 	GetUser(user model.User) (*model.User, error)
-	CheckExist(user model.User) (bool, error)
+	CheckExist(mail string) (bool, error)
 }
 
 type Writer interface {

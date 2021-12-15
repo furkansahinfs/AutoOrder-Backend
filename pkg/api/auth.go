@@ -69,7 +69,7 @@ func (a *API) SignUp(w http.ResponseWriter, r *http.Request) {
 		response.Errorf(w, r, fmt.Errorf("error getting signup info: %v", err), http.StatusBadRequest, a.errors[2].Message)
 		return
 	}
-	found, err := a.service.GetUserService().CheckExistByMail(user)
+	found, err := a.service.GetUserService().CheckExistByMail(user.Email)
 	if err != nil {
 		response.Errorf(w, r, fmt.Errorf("error getting signup info: %v", err), http.StatusBadRequest, a.errors[3].Message)
 		return
