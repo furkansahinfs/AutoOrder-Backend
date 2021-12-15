@@ -25,6 +25,7 @@ const (
 		password varchar(256) NOT NULL DEFAULT 0,
 		full_name varchar(256) NOT NULL DEFAULT 0,
 		token varchar(256) NOT NULL DEFAULT '',
+		user_information_id bigint(20),
 		UNIQUE KEY id (id)
 	  ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;	
 `
