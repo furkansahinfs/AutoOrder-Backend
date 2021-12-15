@@ -19,10 +19,8 @@ const (
 	initTableTemplate = `
 	CREATE TABLE IF NOT EXISTS %s (
 		id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-		email varchar(256) NOT NULL DEFAULT 0,
-		password varchar(256) NOT NULL DEFAULT 0,
-		full_name varchar(256) NOT NULL DEFAULT 0,
-		token varchar(256) NOT NULL DEFAULT '',
+		phone varchar(256) NOT NULL DEFAULT 0,
+		address varchar(256) NOT NULL DEFAULT 0,
 		UNIQUE KEY id (id)
 	  ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;	
 `
