@@ -4,14 +4,16 @@ import (
 	"database/sql"
 
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository/user"
+	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository/user_information"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 // MySQL Repository defines the MySQL implementation of Repository interface
 type MySQLRepository struct {
-	cfg      *MySQLConfig
-	db       *sql.DB
-	userRepo user.Repository
+	cfg                 *MySQLConfig
+	db                  *sql.DB
+	userRepo            user.Repository
+	userInformationRepo user_information.Repository
 }
 
 // MySQLConfig defines the MySQL Repository configuration
@@ -62,16 +64,26 @@ func NewMySQLRepository(cfg *MySQLConfig) (*MySQLRepository, error) {
 	if err != nil {
 		return nil, err
 	}
+	userInformationRepo, err := user_information.NewMySQLRepository(db)
+	if err != nil {
+		return nil, err
+	}
 	return &MySQLRepository{
-		cfg:      cfg,
-		db:       db,
-		userRepo: userRepo,
+		cfg:                 cfg,
+		db:                  db,
+		userRepo:            userRepo,
+		userInformationRepo: userInformationRepo,
 	}, nil
 }
 
 // GetUserRepository returns the user repository
 func (r *MySQLRepository) GetUserRepository() user.Repository {
 	return r.userRepo
+}
+
+// GetUserInformationRepository returns the user repository
+func (r *MySQLRepository) GetUserInformationRepository() user_information.Repository {
+	return r.userInformationRepo
 }
 
 // Shutdown closes the database connection
