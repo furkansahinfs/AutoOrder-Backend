@@ -63,12 +63,20 @@ func (s *Service) SignUp(user model.User) (*model.User, error) {
 }
 
 func (s *Service) RefreshToken(user *model.User, signingKey string) (*model.User, error) {
-	token, err := CreateToken(user.Email, time.Minute*5, signingKey)
+	found, err := s.CheckExistByMail(*user)
 	if err != nil {
 		return nil, err
 	}
-	user.Token = token
-	return user, nil
+	if found {
+		token, err := CreateToken(user.Email, time.Minute*5, signingKey)
+		if err != nil {
+			return nil, err
+		}
+		user.Token = token
+		return user, nil
+	}
+	return nil, errors.New("User Not Found")
+
 }
 
 func (s *Service) CheckExistByMail(user model.User) (bool, error) {
