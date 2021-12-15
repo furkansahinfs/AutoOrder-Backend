@@ -1,4 +1,4 @@
-package userinformation
+package user_information
 
 import "github.com/furkansahinfs/AutoOrder-Backend/pkg/repository"
 

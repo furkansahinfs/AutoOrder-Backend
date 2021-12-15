@@ -3,14 +3,14 @@ package service
 import (
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/service/user"
-	userinformation "github.com/furkansahinfs/AutoOrder-Backend/pkg/service/userInformation"
+	"github.com/furkansahinfs/AutoOrder-Backend/pkg/service/user_information"
 )
 
 type Provider struct {
 	cfg                    *Config
 	repository             repository.Repository
 	userService            *user.Service
-	userInformationService *userinformation.Service
+	userInformationService *user_information.Service
 }
 
 func NewProvider(cfg *Config, repo repository.Repository) (*Provider, error) {
@@ -18,7 +18,7 @@ func NewProvider(cfg *Config, repo repository.Repository) (*Provider, error) {
 	if err != nil {
 		return nil, err
 	}
-	userinformationService, err := userinformation.NewService(repo)
+	userinformationService, err := user_information.NewService(repo)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (p *Provider) GetUserService() *user.Service {
 	return p.userService
 }
 
-func (p *Provider) GetUserInformationService() *userinformation.Service {
+func (p *Provider) GetUserInformationService() *user_information.Service {
 	return p.userInformationService
 }
 func (p *Provider) GetConfig() *Config {
