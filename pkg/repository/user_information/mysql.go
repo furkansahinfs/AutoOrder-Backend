@@ -31,7 +31,7 @@ func NewMySQLRepository(db *sql.DB) (*MySQLRepository, error) {
 	_, err := db.Exec(tableInitCmd)
 
 	if err != nil {
-		return nil, fmt.Errorf("error init user repository: %v", err)
+		return nil, fmt.Errorf("error init userInformations repository: %v", err)
 	}
 
 	return &MySQLRepository{
