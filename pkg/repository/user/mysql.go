@@ -23,8 +23,6 @@ const (
 		id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		email varchar(256) NOT NULL DEFAULT 0,
 		password varchar(256) NOT NULL DEFAULT 0,
-		full_name varchar(256) NOT NULL DEFAULT 0,
-		token varchar(256) NOT NULL DEFAULT '',
 		user_information_id bigint(20) NOT NULL DEFAULT 0,
 		UNIQUE KEY id (id)
 	  ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;	
@@ -70,7 +68,7 @@ func (r *MySQLRepository) CheckExist(user model.User) (bool, error) {
 
 func (r *MySQLRepository) StoreUser(user model.User) (*model.User, error) {
 	stmt, err := r.db.Prepare(`INSERT INTO ` + tableName + `(
-		email, password, full_name)
+		email, password)
 		VALUES(
 			?,?,?)`)
 	if err != nil {
