@@ -70,7 +70,7 @@ func (r *MySQLRepository) StoreUser(user model.User) (*model.User, error) {
 	stmt, err := r.db.Prepare(`INSERT INTO ` + tableName + `(
 		email, password)
 		VALUES(
-			?,?,?)`)
+			?,?)`)
 	if err != nil {
 		return nil, err
 	}
@@ -84,4 +84,14 @@ func (r *MySQLRepository) StoreUser(user model.User) (*model.User, error) {
 	}
 
 	return &user, nil
+}
+
+func (r *MySQLRepository) ChangeUserInformationID(user model.User, id int64) (int64, error) {
+	result, err := r.db.Exec("update "+tableName+" set user_information_id = ? where email = ?", id, user.Email)
+	if err != nil {
+		return -1, err
+	} else {
+		return result.RowsAffected()
+	}
+
 }

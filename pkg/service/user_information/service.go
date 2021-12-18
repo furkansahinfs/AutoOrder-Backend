@@ -15,7 +15,26 @@ func NewService(repo repository.Repository) (*Service, error) {
 	}, nil
 }
 
-func (s *Service) StoreUserInformation(user model.User) (string, error) {
+func (s *Service) StoreUserInformation(userInformation model.UserInformation) (int64, error) {
+	id, err := s.repository.GetUserInformationRepository().StoreUserInformation(userInformation)
+	if err != nil {
+		return -1, nil
+	}
+	return id, nil
+}
 
-	return "found", nil
+func (s *Service) DeleteUserInformation(id int64) (int64, error) {
+	id, err := s.repository.GetUserInformationRepository().DeleteUserInformation(id)
+	if err != nil {
+		return -1, nil
+	}
+	return id, nil
+}
+
+func (s *Service) UpdateUserInformation(userInformation model.UserInformation, id int64) (int64, error) {
+	id, err := s.repository.GetUserInformationRepository().UpdateUserInformation(userInformation, id)
+	if err != nil {
+		return -1, nil
+	}
+	return id, nil
 }

@@ -10,6 +10,6 @@ type Config struct{}
 type Service interface {
 	GetConfig() *Config
 	GetUserService() *user.Service
-	GetUserInformationService() user_information.Service
+	GetUserInformationService() *user_information.Service
 	Shutdown()
 }

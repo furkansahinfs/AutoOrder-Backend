@@ -41,8 +41,8 @@ func New(config *Config, svc service.Service, router *mux.Router, errors model.E
 	api.Router.HandleFunc("/api/v1/refreshtoken", api.corsMiddleware(api.logMiddleware(api.RefreshToken))).Methods("POST")
 
 	//user information endpoints
-	api.Router.HandleFunc("/api/v1/userinformation/update", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.UpdateUserInformation)))).Methods("POST")
-	api.Router.HandleFunc("/api/v1/userinformation/delete", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.DeleteUserInformation)))).Methods("POST")
+	//api.Router.HandleFunc("/api/v1/userinformation/update", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.UpdateUserInformation)))).Methods("POST")
+	//api.Router.HandleFunc("/api/v1/userinformation/delete", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.DeleteUserInformation)))).Methods("POST")
 	api.Router.HandleFunc("/api/v1/userinformation/store", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.StoreUserInformation)))).Methods("POST")
 
 	// healtcheck endpoint

@@ -9,6 +9,7 @@ type Reader interface {
 
 type Writer interface {
 	StoreUser(user model.User) (*model.User, error)
+	ChangeUserInformationID(user model.User, id int64) (int64, error)
 }
 
 //Repository repository interface

@@ -21,6 +21,7 @@ func (a *API) controlUser(w http.ResponseWriter, r *http.Request) (*model.User, 
 	if found {
 		var user model.User
 		user.Email = payload.Email
+		a.service.GetUserService().GetUser(user)
 		return &user, nil
 	}
 	return nil, errors.New("User Not Found")

@@ -25,6 +25,15 @@ func NewService(repo repository.Repository) (*Service, error) {
 	}, nil
 }
 
+func (s *Service) GetUser(user model.User) (*model.User, error) {
+	//Get user from db
+	u, err := s.repository.GetUserRepository().GetUser(user)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+
 func (s *Service) Login(user model.User, signingKey string) (*model.User, error) {
 	//Get user from
 	u, err := s.repository.GetUserRepository().GetUser(user)
@@ -137,4 +146,12 @@ func CreateToken(email string, duration time.Duration, signingkey string) (strin
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	return jwtToken.SignedString([]byte(signingkey))
+}
+
+func (s *Service) ChangeUserInformationID(user model.User, id int64) (int64, error) {
+	id, err := s.repository.GetUserRepository().ChangeUserInformationID(user, id)
+	if err != nil {
+		return -1, err
+	}
+	return id, nil
 }
