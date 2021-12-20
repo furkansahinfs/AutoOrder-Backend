@@ -57,6 +57,7 @@ func (r *MySQLRepository) GetImagePath(id int64) (*model.ImageData, error) {
 }
 
 func (r *MySQLRepository) StoreImagePath(path string, user_id int64) (int64, error) {
+	fmt.Println(user_id)
 	stmt, err := r.db.Prepare(`INSERT INTO ` + tableName + `(
 		path, user_id)
 		VALUES(

@@ -19,10 +19,13 @@ func (a *API) controlUser(w http.ResponseWriter, r *http.Request) (*model.User, 
 	}
 	found, err := a.service.GetUserService().CheckExistByMail(payload.Email)
 	if found {
-		var user model.User
-		user.Email = payload.Email
-		a.service.GetUserService().GetUser(user)
-		return &user, nil
+		var u model.User
+		u.Email = payload.Email
+		user, err := a.service.GetUserService().GetUser(u)
+		if err != nil {
+			return nil, err
+		}
+		return user, nil
 	}
 	return nil, errors.New("User Not Found")
 
