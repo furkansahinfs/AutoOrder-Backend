@@ -1,6 +1,6 @@
 package model
 
-//User data
+//Error data
 type ErrorJson []struct {
 	ID      int    `json:"id"`
 	Message string `json:"message"`

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository/image"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository/user"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository/user_information"
 )
@@ -11,4 +12,5 @@ type Repository interface {
 	Shutdown()
 	GetUserRepository() user.Repository
 	GetUserInformationRepository() user_information.Repository
+	GetImageRepository() image.Repository
 }

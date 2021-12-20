@@ -7,4 +7,5 @@ type User struct {
 	FullName          string `json:"fullName"`
 	Token             string `json:"token"`
 	UserInformationID int64  `json:"user_information_id"`
+	ID                int64  `json:"id"`
 }

@@ -43,14 +43,14 @@ func NewMySQLRepository(db *sql.DB) (*MySQLRepository, error) {
 }
 
 func (r *MySQLRepository) GetUser(user model.User) (*model.User, error) {
-	q := "SELECT email, password FROM " + tableName + " WHERE email=?"
+	q := "SELECT id,email, password FROM " + tableName + " WHERE email=?"
 
 	logrus.Debug("QUERY: ", q, "email: ", user.Email)
 	res := r.db.QueryRow(q, user.Email)
 
 	u := &model.User{}
 
-	if err := res.Scan(&u.Email, &u.Password); err != nil {
+	if err := res.Scan(&u.ID, &u.Email, &u.Password); err != nil {
 		return nil, err
 	}
 
