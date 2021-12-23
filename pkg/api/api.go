@@ -6,6 +6,7 @@ import (
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/service"
 	"github.com/gorilla/mux"
+	_ "github.com/mitchellh/mapstructure"
 )
 
 // API configuration
@@ -13,6 +14,10 @@ type Config struct {
 	Domain        string `yaml:"domain"`
 	SigningSecret string `yaml:"signing_secret"`
 	ImagePath     string `yaml:"imagePath"`
+	Enums         struct {
+		Front []map[string]string `yaml:"front"`
+		Back  []map[string]string `yaml:"back"`
+	} `yaml:"enum"`
 }
 
 // structure of the API
@@ -53,6 +58,9 @@ func New(config *Config, svc service.Service, router *mux.Router, errors model.E
 	//config endpointleri
 
 	//enum endpointleri()
+	api.Router.HandleFunc("/api/v1/items/front", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetItemsFront)))).Methods("GET")
+	api.Router.HandleFunc("/api/v1/items/back", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetItemsBack)))).Methods("GET")
+	api.Router.HandleFunc("/api/v1/items/all", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetItemsAll)))).Methods("GET")
 
 	// healtcheck endpoint
 	api.Router.HandleFunc("/api/v1/healtcheck", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.preflightHandler)))).Methods("POST")

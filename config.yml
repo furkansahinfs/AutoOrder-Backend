@@ -9,8 +9,8 @@ api:
   signing_secret: "your-super-secret"
   imagePath: "./pkg/images/"
   enum:
-    front: ["elma","armut"]
-    back: ["Süt","Yoğurt"]
+    front: [{"name":"Egg","type":"front","size":"2X"},{"name":"Cheese","type":"front","size":"2X"},{"name":"Chocolate","type":"front","size":"1X"},{"name":"Olive","type":"front","size":"1X"},{"name":"Butter","type":"front","size":"2X"},{"name":"TomatoPaste","type":"front","size":"1X"}]
+    back: [{"name":"Milk","type":"back","size":"2X"},{"name":"Juice","type":"back","size":"2X"},{"name":"Yoghurt","type":"back","size":"3X"},{"name":"Jam","type":"back","size":"2X"},{"name":"Buttermilk","type":"back","size":"1X"}]
 
 database:
     addr: 127.0.0.1:3306
