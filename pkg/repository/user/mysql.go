@@ -43,14 +43,14 @@ func NewMySQLRepository(db *sql.DB) (*MySQLRepository, error) {
 }
 
 func (r *MySQLRepository) GetUser(user model.User) (*model.User, error) {
-	q := "SELECT id ,email, password FROM " + tableName + " WHERE email=?"
+	q := "SELECT id ,email, password, user_information_id FROM " + tableName + " WHERE email=?"
 
 	logrus.Debug("QUERY: ", q, "email: ", user.Email)
 	res := r.db.QueryRow(q, user.Email)
 
 	u := &model.User{}
 
-	if err := res.Scan(&u.ID, &u.Email, &u.Password); err != nil {
+	if err := res.Scan(&u.ID, &u.Email, &u.Password, &u.UserInformationID); err != nil {
 		return nil, err
 	}
 
@@ -87,11 +87,11 @@ func (r *MySQLRepository) StoreUser(user model.User) (*model.User, error) {
 }
 
 func (r *MySQLRepository) ChangeUserInformationID(user model.User, id int64) (int64, error) {
-	result, err := r.db.Exec("update "+tableName+" set user_information_id = ? where email = ?", id, user.Email)
+	_, err := r.db.Exec("update "+tableName+" set user_information_id = ? where email = ?", id, user.Email)
 	if err != nil {
 		return -1, err
 	} else {
-		return result.RowsAffected()
+		return 1, nil
 	}
 
 }

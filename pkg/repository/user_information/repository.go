@@ -3,7 +3,7 @@ package user_information
 import "github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
 
 type Reader interface {
-	GetUserInformation(id int) (*model.UserInformation, error)
+	GetUserInformation(id int64) (*model.UserInformation, error)
 }
 
 type Writer interface {

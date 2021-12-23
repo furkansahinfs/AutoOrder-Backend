@@ -49,12 +49,15 @@ func (a *API) GetImage(w http.ResponseWriter, r *http.Request) {
 			response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusInternalServerError, err.Error())
 			return
 		}
-		fmt.Println(user.ID)
 		id, err := a.service.GetImageService().SaveImagePath(path, user.ID)
 		if err != nil {
 			response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, err.Error())
 			return
 		}
+
+		//TODO
+		//Python backende image gönder
+
 		response.Write(w, r, id)
 	} else {
 		response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, errors.New("File extension error").Error())

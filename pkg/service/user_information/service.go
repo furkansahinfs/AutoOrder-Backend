@@ -14,7 +14,13 @@ func NewService(repo repository.Repository) (*Service, error) {
 		repository: repo,
 	}, nil
 }
-
+func (s *Service) GetUserInformation(id int64) (*model.UserInformation, error) {
+	information, err := s.repository.GetUserInformationRepository().GetUserInformation(id)
+	if err != nil {
+		return nil, nil
+	}
+	return information, nil
+}
 func (s *Service) StoreUserInformation(userInformation model.UserInformation) (int64, error) {
 	id, err := s.repository.GetUserInformationRepository().StoreUserInformation(userInformation)
 	if err != nil {

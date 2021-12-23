@@ -42,7 +42,7 @@ func NewMySQLRepository(db *sql.DB) (*MySQLRepository, error) {
 	}, nil
 }
 
-func (r *MySQLRepository) GetUserInformation(id int) (*model.UserInformation, error) {
+func (r *MySQLRepository) GetUserInformation(id int64) (*model.UserInformation, error) {
 	q := "SELECT id, phone, address, full_name FROM " + tableName + " WHERE id=?"
 
 	logrus.Debug("QUERY: ", q, "id: ", id)

@@ -10,6 +10,25 @@ import (
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
 )
 
+//endpoint for get userInformation
+func (a *API) GetUserInformation(w http.ResponseWriter, r *http.Request) {
+	user, err := a.controlUser(w, r)
+	if err != nil {
+		response.Errorf(w, r, fmt.Errorf("error getting storeUserInformation info: %v", err), http.StatusBadRequest, err.Error())
+		return
+	}
+	if user.UserInformationID == 0 {
+		response.Errorf(w, r, fmt.Errorf("error getting storeUserInformation info: %v", err), http.StatusBadRequest, errors.New("User dont have a information yet").Error())
+		return
+	}
+	information, err := a.service.GetUserInformationService().GetUserInformation(user.UserInformationID)
+	if err != nil {
+		response.Errorf(w, r, fmt.Errorf("error getting storeUserInformation info: %v", err), http.StatusBadRequest, err.Error())
+		return
+	}
+	response.Write(w, r, information)
+}
+
 //endpoint for store userInformation
 func (a *API) StoreUserInformation(w http.ResponseWriter, r *http.Request) {
 	user, err := a.controlUser(w, r)
@@ -33,12 +52,12 @@ func (a *API) StoreUserInformation(w http.ResponseWriter, r *http.Request) {
 		response.Errorf(w, r, fmt.Errorf("error getting storeUserInformation info: %v", err), http.StatusBadRequest, err.Error())
 		return
 	}
-	_, err = a.service.GetUserService().ChangeUserInformationID(*user, id)
+	informationID, err := a.service.GetUserService().ChangeUserInformationID(*user, id)
 	if err != nil {
 		response.Errorf(w, r, fmt.Errorf("error getting storeUserInformation info: %v", err), http.StatusBadRequest, err.Error())
 		return
 	}
-	response.Write(w, r, user)
+	response.Write(w, r, informationID)
 }
 
 //endpoint for update userInformation
@@ -75,14 +94,7 @@ func (a *API) DeleteUserInformation(w http.ResponseWriter, r *http.Request) {
 		response.Errorf(w, r, fmt.Errorf("error getting DeleteUserInformation info: %v", err), http.StatusBadRequest, err.Error())
 		return
 	}
-	var payload model.UserInformation
-	err = json.NewDecoder(r.Body).Decode(&payload)
-	if err != nil {
-		response.Errorf(w, r, fmt.Errorf("error getting DeleteUserInformation info: %v", err), http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if user.UserInformationID != 0 {
+	if user.UserInformationID == 0 {
 		response.Errorf(w, r, fmt.Errorf("error getting DeleteUserInformation info: %v", err), http.StatusBadRequest, errors.New("User dont have any information yet").Error())
 		return
 	}
