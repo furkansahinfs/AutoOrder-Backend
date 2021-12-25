@@ -55,9 +55,13 @@ func New(config *Config, svc service.Service, router *mux.Router, errors model.E
 	//image endpoints
 	api.Router.HandleFunc("/api/v1/image", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetImage)))).Methods("POST")
 
-	//config endpointleri
+	//config endpoints
+	//api.Router.HandleFunc("/api/v1/configuration", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetUserConfiguration)))).Methods("GET")
+	//api.Router.HandleFunc("/api/v1/configuration/store", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.StoreUserConfiguration)))).Methods("POST")
+	//api.Router.HandleFunc("/api/v1/configuration/delete", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.DeleteUserConfiguration)))).Methods("POST")
+	//api.Router.HandleFunc("/api/v1/configuration/update", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.UpdateUserConfiguration)))).Methods("POST")
 
-	//enum endpointleri()
+	//enum endpoints
 	api.Router.HandleFunc("/api/v1/items/front", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetItemsFront)))).Methods("GET")
 	api.Router.HandleFunc("/api/v1/items/back", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetItemsBack)))).Methods("GET")
 	api.Router.HandleFunc("/api/v1/items/all", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetItemsAll)))).Methods("GET")
