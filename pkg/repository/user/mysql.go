@@ -24,6 +24,7 @@ const (
 		email varchar(256) NOT NULL DEFAULT 0,
 		password varchar(256) NOT NULL DEFAULT 0,
 		user_information_id bigint(20) NOT NULL DEFAULT 0,
+		user_configuration_id bigint(20) NOT NULL DEFAULT 0,
 		UNIQUE KEY id (id)
 	  ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;	
 `
@@ -43,14 +44,14 @@ func NewMySQLRepository(db *sql.DB) (*MySQLRepository, error) {
 }
 
 func (r *MySQLRepository) GetUser(user model.User) (*model.User, error) {
-	q := "SELECT id ,email, password, user_information_id FROM " + tableName + " WHERE email=?"
+	q := "SELECT id ,email, password, user_information_id,user_configuration_id FROM " + tableName + " WHERE email=?"
 
 	logrus.Debug("QUERY: ", q, "email: ", user.Email)
 	res := r.db.QueryRow(q, user.Email)
 
 	u := &model.User{}
 
-	if err := res.Scan(&u.ID, &u.Email, &u.Password, &u.UserInformationID); err != nil {
+	if err := res.Scan(&u.ID, &u.Email, &u.Password, &u.UserInformationID, &u.UserConfigurationID); err != nil {
 		return nil, err
 	}
 
