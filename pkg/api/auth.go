@@ -102,23 +102,3 @@ func (a *API) SignUp(w http.ResponseWriter, r *http.Request) {
 	response.Errorf(w, r, fmt.Errorf("error getting signup info: %v", err), http.StatusBadRequest, a.errors[5].Message)
 	return
 }
-
-func (a *API) extractClaims(tokenStr string) (jwt.MapClaims, bool) {
-	hmacSecretString := a.config.SigningSecret
-	hmacSecret := []byte(hmacSecretString)
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		// check token signing method etc
-		return hmacSecret, nil
-	})
-
-	if err != nil {
-		return nil, false
-	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return claims, true
-	} else {
-		log.Printf("Invalid JWT Token")
-		return nil, false
-	}
-}
