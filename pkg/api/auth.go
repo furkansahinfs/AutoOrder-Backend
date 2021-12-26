@@ -3,8 +3,10 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/api/response"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
 )
@@ -14,12 +16,12 @@ func (a *API) Login(w http.ResponseWriter, r *http.Request) {
 	var user model.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		response.Errorf(w, r, fmt.Errorf("error getting login info: %v", err), http.StatusBadRequest, a.errors[0].Message)
+		response.Errorf(w, r, fmt.Errorf("error getting login info: %v", err), http.StatusBadRequest, err.Error())
 		return
 	}
 	u, err := a.service.GetUserService().Login(user, a.config.SigningSecret)
 	if err != nil {
-		response.Errorf(w, r, fmt.Errorf("error getting login info: %v", err), http.StatusBadRequest, a.errors[1].Message)
+		response.Errorf(w, r, fmt.Errorf("error getting login info: %v", err), http.StatusBadRequest, err.Error())
 		return
 	}
 	response.Write(w, r, u)
@@ -38,6 +40,20 @@ func (a *API) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	_, err = a.verifyToken(user.Token, a.config.SigningSecret)
 	if err != nil {
 		if err.Error() == "token has expired" {
+			token, _, err := new(jwt.Parser).ParseUnverified(user.Token, jwt.MapClaims{})
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			claims, ok := token.Claims.(jwt.MapClaims)
+			if !ok {
+				log.Fatalf("Can't convert token's claims to standard claims")
+			}
+			switch email := claims["email"].(type) {
+			case string:
+				user.Email = email
+			}
+
 			u, err := a.service.GetUserService().RefreshToken(&user, a.config.SigningSecret)
 			if err != nil {
 				response.Errorf(w, r, fmt.Errorf("error getting refresh info: %v", err), http.StatusBadRequest, a.errors[1].Message)
@@ -85,4 +101,24 @@ func (a *API) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 	response.Errorf(w, r, fmt.Errorf("error getting signup info: %v", err), http.StatusBadRequest, a.errors[5].Message)
 	return
+}
+
+func (a *API) extractClaims(tokenStr string) (jwt.MapClaims, bool) {
+	hmacSecretString := a.config.SigningSecret
+	hmacSecret := []byte(hmacSecretString)
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		// check token signing method etc
+		return hmacSecret, nil
+	})
+
+	if err != nil {
+		return nil, false
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, true
+	} else {
+		log.Printf("Invalid JWT Token")
+		return nil, false
+	}
 }
