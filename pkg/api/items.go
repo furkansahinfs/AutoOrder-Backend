@@ -72,3 +72,29 @@ func (a *API) GetItemsAll(w http.ResponseWriter, r *http.Request) {
 	return
 
 }
+
+//for all Items enums
+func (a *API) GetItems() ([]model.Item, error) {
+	var allItems []model.Item
+	for _, y := range a.config.Enums.Front {
+		var item model.Item
+		err := mapstructure.Decode(y, &item)
+		if err != nil {
+			return nil, err
+		}
+		allItems = append(allItems, item)
+
+	}
+	for _, y := range a.config.Enums.Back {
+		var item model.Item
+		err := mapstructure.Decode(y, &item)
+		if err != nil {
+			return nil, err
+		}
+		allItems = append(allItems, item)
+
+	}
+
+	return allItems, nil
+
+}

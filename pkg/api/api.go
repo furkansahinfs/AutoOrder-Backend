@@ -18,6 +18,7 @@ type Config struct {
 		Front []map[string]string `yaml:"front"`
 		Back  []map[string]string `yaml:"back"`
 	} `yaml:"enum"`
+	PythonBackendAddress string `yaml:"python_backend_address"`
 }
 
 // structure of the API
@@ -56,10 +57,10 @@ func New(config *Config, svc service.Service, router *mux.Router, errors model.E
 	api.Router.HandleFunc("/api/v1/image", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetImage)))).Methods("POST")
 
 	//config endpoints
-	//api.Router.HandleFunc("/api/v1/configuration", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetUserConfiguration)))).Methods("GET")
-	//api.Router.HandleFunc("/api/v1/configuration/store", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.StoreUserConfiguration)))).Methods("POST")
-	//api.Router.HandleFunc("/api/v1/configuration/delete", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.DeleteUserConfiguration)))).Methods("POST")
-	//api.Router.HandleFunc("/api/v1/configuration/update", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.UpdateUserConfiguration)))).Methods("POST")
+	api.Router.HandleFunc("/api/v1/configuration/{type}", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetUserConfiguration)))).Methods("GET")
+	api.Router.HandleFunc("/api/v1/configuration/store/{type}", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.StoreUserConfiguration)))).Methods("POST")
+	api.Router.HandleFunc("/api/v1/configuration/delete/{type}", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.DeleteUserConfiguration)))).Methods("POST")
+	api.Router.HandleFunc("/api/v1/configuration/update/{type}", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.UpdateUserConfiguration)))).Methods("POST")
 
 	//enum endpoints
 	api.Router.HandleFunc("/api/v1/items/front", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetItemsFront)))).Methods("GET")

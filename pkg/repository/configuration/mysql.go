@@ -44,7 +44,7 @@ func NewMySQLRepository(db *sql.DB) (*MySQLRepository, error) {
 }
 
 func (r *MySQLRepository) GetConfiguration(id int64, item_type string) ([]model.Item, error) {
-	q := "SELECT item_name, item_size, item_type FROM " + tableName + " WHERE user_id=? AND type=?"
+	q := "SELECT item_name, item_size, item_type FROM " + tableName + " WHERE user_id=? AND item_type=?"
 
 	logrus.Debug("QUERY: ", q, "id: item_type", id)
 	res, err := r.db.Query(q, id, item_type)
@@ -87,12 +87,23 @@ func (r *MySQLRepository) StoreConfiguration(items []model.Item, user_id int64) 
 
 }
 
-func (r *MySQLRepository) UpdateConfiguration(items []model.Item, item_type string, user_id int64) error {
-
+func (r *MySQLRepository) UpdateConfiguration(id int64, items []model.Item, item_type string) error {
+	err := r.DeleteConfiguration(id, item_type)
+	if err != nil {
+		return err
+	}
+	err = r.StoreConfiguration(items, id)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (r *MySQLRepository) DeleteConfiguration(items []model.Item, item_type string, user_id int64) error {
-
-	return nil
+func (r *MySQLRepository) DeleteConfiguration(id int64, item_type string) error {
+	_, err := r.db.Exec("delete from "+tableName+" where user_id = ? AND item_type = ?", id, item_type)
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
 }

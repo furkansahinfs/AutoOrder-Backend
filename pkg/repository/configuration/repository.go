@@ -7,8 +7,8 @@ type Reader interface {
 }
 
 type Writer interface {
-	DeleteConfiguration(items []model.Item, item_type string, user_id int64) error
-	UpdateConfiguration(items []model.Item, item_type string, user_id int64) error
+	DeleteConfiguration(id int64, item_type string) error
+	UpdateConfiguration(id int64, items []model.Item, item_type string) error
 	StoreConfiguration(items []model.Item, user_id int64) error
 }
 

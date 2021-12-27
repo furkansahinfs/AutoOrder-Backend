@@ -65,3 +65,46 @@ func (a *API) GetImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+/*
+func (a *API) send(filePath string, config []model.Item) (*http.Response, error, int) {
+	client := &http.Client{
+		Timeout: time.Second * 60,
+	}
+	// New multipart writer.
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	fw, err := writer.CreateFormField("data")
+	if err != nil {
+		return nil, err, 0
+	}
+	_, err = io.Copy(fw, strings.NewReader(fmt.Sprintf("%v", config)))
+	if err != nil {
+		return nil, err, 0
+	}
+	fw, err = writer.CreateFormFile("image", filePath)
+	if err != nil {
+		return nil, err, 0
+	}
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err, 0
+	}
+	_, err = io.Copy(fw, file)
+	if err != nil {
+		return nil, err, 0
+	}
+	// Close multipart writer.
+	writer.Close()
+	req, err := http.NewRequest("POST", a.config.PythonBackendAddress, bytes.NewReader(body.Bytes()))
+	if err != nil {
+		return nil, err, 0
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rsp, _ := client.Do(req)
+	if rsp.StatusCode != http.StatusOK {
+		return nil, err, rsp.StatusCode
+	}
+	return rsp, nil, rsp.StatusCode
+}
+*/
