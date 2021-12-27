@@ -35,22 +35,6 @@ func (a *API) GetUserConfiguration(w http.ResponseWriter, r *http.Request) {
 		}
 		response.Write(w, r, items)
 		return
-	case "all":
-		items, err := a.service.GetUserConfigurationService().GetUserConfiguration(user.ID, "front")
-		if err != nil {
-			response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
-			return
-		}
-		itemsBack, err := a.service.GetUserConfigurationService().GetUserConfiguration(user.ID, "back")
-		if err != nil {
-			response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
-			return
-		}
-		for _, item := range itemsBack {
-			items = append(items, item)
-		}
-		response.Write(w, r, items)
-		return
 	default:
 		response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
 		return
@@ -104,19 +88,53 @@ func (a *API) StoreUserConfiguration(w http.ResponseWriter, r *http.Request) {
 		}
 		response.Write(w, r, true)
 		return
-	case "all":
+	default:
+		response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
+		return
+	}
+}
+
+//endpoint for update user configuration
+func (a *API) UpdateUserConfiguration(w http.ResponseWriter, r *http.Request) {
+	user, err := a.controlUser(w, r)
+	if err != nil {
+		response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
+		return
+	}
+	vars := mux.Vars(r)
+	switch vars["type"] {
+	case "front":
 		var uitems []model.Item
 		err := json.NewDecoder(r.Body).Decode(&uitems)
 		if err != nil {
 			response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, a.errors[2].Message)
 			return
 		}
-		allItems, err := a.GetItems()
+		frontItems, err := a.GetItems()
 		if err != nil {
 			response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
 			return
 		}
-		err = a.service.GetUserConfigurationService().StoreUserConfiguration(user.ID, vars["type"], uitems, allItems)
+		err = a.service.GetUserConfigurationService().UpdateUserConfiguration(user.ID, vars["type"], uitems, frontItems)
+		if err != nil {
+			response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
+			return
+		}
+		response.Write(w, r, true)
+		return
+	case "back":
+		var uitems []model.Item
+		err := json.NewDecoder(r.Body).Decode(&uitems)
+		if err != nil {
+			response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, a.errors[2].Message)
+			return
+		}
+		backItems, err := a.GetItems()
+		if err != nil {
+			response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
+			return
+		}
+		err = a.service.GetUserConfigurationService().UpdateUserConfiguration(user.ID, vars["type"], uitems, backItems)
 		if err != nil {
 			response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
 			return
@@ -127,17 +145,36 @@ func (a *API) StoreUserConfiguration(w http.ResponseWriter, r *http.Request) {
 		response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
 		return
 	}
-	response.Write(w, r, "information")
-}
-
-//endpoint for update user configuration
-func (a *API) UpdateUserConfiguration(w http.ResponseWriter, r *http.Request) {
-
-	response.Write(w, r, "information")
 }
 
 //endpoint for get user configuration
 func (a *API) DeleteUserConfiguration(w http.ResponseWriter, r *http.Request) {
+	user, err := a.controlUser(w, r)
+	if err != nil {
+		response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
+		return
+	}
+	vars := mux.Vars(r)
+	switch vars["type"] {
+	case "front":
 
-	response.Write(w, r, "information")
+		err = a.service.GetUserConfigurationService().DeleteUserConfiguration(user.ID, vars["type"])
+		if err != nil {
+			response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
+			return
+		}
+		response.Write(w, r, true)
+		return
+	case "back":
+		err = a.service.GetUserConfigurationService().DeleteUserConfiguration(user.ID, vars["type"])
+		if err != nil {
+			response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
+			return
+		}
+		response.Write(w, r, true)
+		return
+	default:
+		response.Errorf(w, r, fmt.Errorf("error getting user configuration info: %v", err), http.StatusBadRequest, err.Error())
+		return
+	}
 }
