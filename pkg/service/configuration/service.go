@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
@@ -45,6 +46,7 @@ func (s *Service) StoreUserConfiguration(id int64, item_type string, uitems []mo
 			}
 		}
 	}
+	fmt.Println(uitems)
 	err = s.repository.GetConfigurationRepository().StoreConfiguration(uitems, id)
 	if err != nil {
 		return err
@@ -52,7 +54,7 @@ func (s *Service) StoreUserConfiguration(id int64, item_type string, uitems []mo
 	return nil
 }
 
-func (s *Service) UpdateUserConfiguration(id int64, item_type string, items []model.Item, allItems []model.Item) error {
+func (s *Service) UpdateUserConfiguration(id int64, item_type string, uitems []model.Item, allItems []model.Item) error {
 	items, err := s.repository.GetConfigurationRepository().GetConfiguration(id, item_type)
 	if err != nil {
 		return err
@@ -60,15 +62,15 @@ func (s *Service) UpdateUserConfiguration(id int64, item_type string, items []mo
 	if len(items) == 0 {
 		return errors.New("User dont have have an " + item_type + " configuration ")
 	}
-	for index, item := range items {
+	for index, item := range uitems {
 		for _, enumItem := range allItems {
 			if item.Name == enumItem.Name {
-				items[index].Size = enumItem.Size
-				items[index].Type = enumItem.Type
+				uitems[index].Size = enumItem.Size
+				uitems[index].Type = enumItem.Type
 			}
 		}
 	}
-	err = s.repository.GetConfigurationRepository().UpdateConfiguration(id, items, item_type)
+	err = s.repository.GetConfigurationRepository().UpdateConfiguration(id, uitems, item_type)
 	if err != nil {
 		return err
 	}
