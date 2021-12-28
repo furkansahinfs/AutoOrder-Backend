@@ -1,11 +1,16 @@
 package api
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -54,6 +59,50 @@ func (a *API) GetImage(w http.ResponseWriter, r *http.Request) {
 			response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, err.Error())
 			return
 		}
+		var uConfigItems []string
+		frontItems, err := a.service.GetUserConfigurationService().GetUserConfiguration(user.ID, "front")
+		if err != nil {
+			if err.Error() == "User dont have a configuration" {
+
+			} else {
+				response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, err.Error())
+				return
+			}
+
+		}
+		if len(frontItems) > 0 {
+			for _, item := range frontItems {
+				uConfigItems = append(uConfigItems, item.Name)
+			}
+		}
+
+		backItems, err := a.service.GetUserConfigurationService().GetUserConfiguration(user.ID, "back")
+		if err != nil {
+			if err.Error() == "User dont have a configuration" {
+
+			} else {
+				response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, err.Error())
+				return
+			}
+
+		}
+		if len(backItems) > 0 {
+			for _, item := range backItems {
+				uConfigItems = append(uConfigItems, item.Name)
+			}
+		}
+
+		if len(uConfigItems) > 0 {
+			responseBodyString, err := a.send(path, uConfigItems)
+			if err != nil {
+				response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, err.Error())
+				return
+			}
+			response.Write(w, r, responseBodyString)
+		} else {
+			response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, errors.New("User Dont have a configuration").Error())
+			return
+		}
 
 		//TODO
 		//Python backende image gönder
@@ -66,45 +115,48 @@ func (a *API) GetImage(w http.ResponseWriter, r *http.Request) {
 
 }
 
-/*
-func (a *API) send(filePath string, config []model.Item) (*http.Response, error, int) {
-	client := &http.Client{
-		Timeout: time.Second * 60,
+func (a *API) send(filePath string, config []string) (string, error) {
+	payload := &bytes.Buffer{}
+	writer := multipart.NewWriter(payload)
+	file, errFile1 := os.Open(filePath)
+	defer file.Close()
+	part1, errFile1 := writer.CreateFormFile("image", filepath.Base(filePath))
+	_, errFile1 = io.Copy(part1, file)
+	if errFile1 != nil {
+		fmt.Println(errFile1)
+		return "", errFile1
 	}
-	// New multipart writer.
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-	fw, err := writer.CreateFormField("data")
+	json, err := json.Marshal(config)
 	if err != nil {
-		return nil, err, 0
+		return "", err
 	}
-	_, err = io.Copy(fw, strings.NewReader(fmt.Sprintf("%v", config)))
+	_ = writer.WriteField("config", string(json))
+	err = writer.Close()
 	if err != nil {
-		return nil, err, 0
+		fmt.Println(err)
+		return "", err
 	}
-	fw, err = writer.CreateFormFile("image", filePath)
+
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", a.config.PythonBackendAddress, payload)
+
 	if err != nil {
-		return nil, err, 0
-	}
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err, 0
-	}
-	_, err = io.Copy(fw, file)
-	if err != nil {
-		return nil, err, 0
-	}
-	// Close multipart writer.
-	writer.Close()
-	req, err := http.NewRequest("POST", a.config.PythonBackendAddress, bytes.NewReader(body.Bytes()))
-	if err != nil {
-		return nil, err, 0
+		fmt.Println(err)
+		return "", err
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	rsp, _ := client.Do(req)
-	if rsp.StatusCode != http.StatusOK {
-		return nil, err, rsp.StatusCode
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
 	}
-	return rsp, nil, rsp.StatusCode
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+	return string(body), nil
+
 }
-*/
