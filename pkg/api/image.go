@@ -40,7 +40,7 @@ func (a *API) GetImage(w http.ResponseWriter, r *http.Request) {
 		response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, err.Error())
 		return
 	}
-	if fileExtentions[1] == "png" || fileExtentions[1] == "jpg" || fileExtentions[1] == "jpeg" {
+	if fileExtentions[1] == "jpg" || fileExtentions[1] == "jpeg" {
 		timeNow := time.Now().String()
 		path := a.config.ImagePath + user.Email + "_" + timeNow + "." + fileExtentions[1]
 		tmpfile, err := os.Create(path)
@@ -54,7 +54,7 @@ func (a *API) GetImage(w http.ResponseWriter, r *http.Request) {
 			response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusInternalServerError, err.Error())
 			return
 		}
-		id, err := a.service.GetImageService().SaveImagePath(path, user.ID)
+		_, err = a.service.GetImageService().SaveImagePath(path, user.ID)
 		if err != nil {
 			response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, err.Error())
 			return
@@ -99,15 +99,11 @@ func (a *API) GetImage(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			response.Write(w, r, responseBodyString)
+			return
 		} else {
 			response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, errors.New("User Dont have a configuration").Error())
 			return
 		}
-
-		//TODO
-		//Python backende image gönder
-
-		response.Write(w, r, id)
 	} else {
 		response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, errors.New("File extension error").Error())
 		return
@@ -123,7 +119,6 @@ func (a *API) send(filePath string, config []string) (string, error) {
 	part1, errFile1 := writer.CreateFormFile("image", filepath.Base(filePath))
 	_, errFile1 = io.Copy(part1, file)
 	if errFile1 != nil {
-		fmt.Println(errFile1)
 		return "", errFile1
 	}
 	json, err := json.Marshal(config)
@@ -133,7 +128,6 @@ func (a *API) send(filePath string, config []string) (string, error) {
 	_ = writer.WriteField("config", string(json))
 	err = writer.Close()
 	if err != nil {
-		fmt.Println(err)
 		return "", err
 	}
 
@@ -141,22 +135,18 @@ func (a *API) send(filePath string, config []string) (string, error) {
 	req, err := http.NewRequest("POST", a.config.PythonBackendAddress, payload)
 
 	if err != nil {
-		fmt.Println(err)
 		return "", err
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
 		return "", err
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println(err)
 		return "", err
 	}
 	return string(body), nil
-
 }
