@@ -98,6 +98,9 @@ func (a *API) GetImage(w http.ResponseWriter, r *http.Request) {
 				response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, err.Error())
 				return
 			}
+
+			// TODO : Save the result to database
+
 			response.Write(w, r, responseBodyString)
 			return
 		} else {

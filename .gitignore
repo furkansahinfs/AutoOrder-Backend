@@ -16,4 +16,5 @@
 esc
 autoOrder.log
 makeFile
-pkg/images/
+pkg/images
+bin
