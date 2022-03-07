@@ -4,6 +4,7 @@ import (
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/service/configuration"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/service/image"
+	"github.com/furkansahinfs/AutoOrder-Backend/pkg/service/orders"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/service/user"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/service/user_information"
 )
@@ -15,6 +16,7 @@ type Provider struct {
 	userInformationService *user_information.Service
 	imageService           *image.Service
 	UserConfiguration      *configuration.Service
+	OrderService           *orders.Service
 }
 
 func NewProvider(cfg *Config, repo repository.Repository) (*Provider, error) {
@@ -34,6 +36,10 @@ func NewProvider(cfg *Config, repo repository.Repository) (*Provider, error) {
 	if err != nil {
 		return nil, err
 	}
+	ordersService, err := orders.NewService(repo)
+	if err != nil {
+		return nil, err
+	}
 	return &Provider{
 		cfg:                    cfg,
 		repository:             repo,
@@ -41,6 +47,7 @@ func NewProvider(cfg *Config, repo repository.Repository) (*Provider, error) {
 		userInformationService: userinformationService,
 		imageService:           imageService,
 		UserConfiguration:      userConfigurationService,
+		OrderService:           ordersService,
 	}, nil
 }
 
@@ -59,6 +66,9 @@ func (p *Provider) GetUserConfigurationService() *configuration.Service {
 	return p.UserConfiguration
 }
 
+func (p *Provider) GetOrdersService() *orders.Service {
+	return p.OrderService
+}
 func (p *Provider) GetConfig() *Config {
 	return p.cfg
 }

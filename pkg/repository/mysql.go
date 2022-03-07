@@ -5,6 +5,7 @@ import (
 
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository/configuration"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository/image"
+	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository/orders"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository/user"
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/repository/user_information"
 	_ "github.com/go-sql-driver/mysql"
@@ -18,6 +19,7 @@ type MySQLRepository struct {
 	userInformationRepo user_information.Repository
 	imageRepo           image.Repository
 	configurationRepo   configuration.Repository
+	OrdersRepo          orders.Repository
 }
 
 // MySQLConfig defines the MySQL Repository configuration
@@ -80,6 +82,10 @@ func NewMySQLRepository(cfg *MySQLConfig) (*MySQLRepository, error) {
 	if err != nil {
 		return nil, err
 	}
+	ordersRepo, err := orders.NewMySQLRepository(db)
+	if err != nil {
+		return nil, err
+	}
 	return &MySQLRepository{
 		cfg:                 cfg,
 		db:                  db,
@@ -87,6 +93,7 @@ func NewMySQLRepository(cfg *MySQLConfig) (*MySQLRepository, error) {
 		userInformationRepo: userInformationRepo,
 		imageRepo:           imageRepo,
 		configurationRepo:   configurationRepo,
+		OrdersRepo:          ordersRepo,
 	}, nil
 }
 
@@ -105,9 +112,14 @@ func (r *MySQLRepository) GetImageRepository() image.Repository {
 	return r.imageRepo
 }
 
-// GetConfigurationRepository returns the user repository
+// GetConfigurationRepository returns the configuration repository
 func (r *MySQLRepository) GetConfigurationRepository() configuration.Repository {
 	return r.configurationRepo
+}
+
+// GetOrdersRepository returns the orders repository
+func (r *MySQLRepository) GetOrdersRepository() orders.Repository {
+	return r.OrdersRepo
 }
 
 // Shutdown closes the database connection
