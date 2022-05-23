@@ -21,6 +21,7 @@ const (
 		id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		userID bigint(20) NOT NULL DEFAULT 0,
 		orderID bigint(20) NOT NULL DEFAULT 0,
+		name varchar(256) NOT NULL DEFAULT '',
 		date varchar(256) NOT NULL DEFAULT 0,
 		brand varchar(256) NOT NULL DEFAULT 0,
 		quantity bigint(20) NOT NULL DEFAULT 0,
