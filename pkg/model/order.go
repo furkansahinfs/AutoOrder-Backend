@@ -10,8 +10,12 @@ type OrderResponse struct {
 }
 
 type OrderResponseJava struct {
-	OrderResponse []OrderResponse `json:"orderItems"`
+	OrderResponse []OrderResponse `json:"data"`
 }
+type OrderRequestJava struct {
+	OrderRequest []string `json:"orderItems"`
+}
+
 type OrderHistory struct {
 	ID        int64   `json:"id"`
 	Orders    []Order `json:"orders"`
