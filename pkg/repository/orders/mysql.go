@@ -66,12 +66,14 @@ func (r *MySQLRepository) GetOrdersWithGroupByOrderID(userID int64) ([]model.Ord
 			return nil, fmt.Errorf("error get orders: %v", err)
 		}
 
+		fmt.Println("orderHistory: ", orderHistory)
+		fmt.Println("order: ", order)
 		for index, orderH := range orderHistories {
 			if orderH.ID == orderHistory.ID {
 				orderHistories[index].Orders = append(orderHistories[index].Orders, order)
 
 			} else {
-
+				orderHistory.Orders = append(orderHistory.Orders, order)
 				orderHistories = append(orderHistories, orderHistory)
 			}
 		}
