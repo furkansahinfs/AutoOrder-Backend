@@ -3,12 +3,12 @@ package orders
 import "github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
 
 type Reader interface {
-	GetOrders(userID int64) ([]*model.Order, error)
-	GetOrder(id int64, userID int64) (*model.Order, error)
+	GetOrdersWithGroupByOrderID(userID int64) ([]model.OrderHistory, error)
+	GetOrder(userID int64, orderID string) (model.OrderHistory, error)
 }
 
 type Writer interface {
-	CreateOrder(order *model.Order, userID int64) error
+	SaveOrder(order []model.OrderResponse, userID int64, orderID string) error
 }
 
 //Repository repository interface

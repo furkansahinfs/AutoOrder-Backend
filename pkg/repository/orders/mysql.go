@@ -3,8 +3,8 @@ package orders
 import (
 	"database/sql"
 	"fmt"
-
 	"github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
+	"time"
 )
 
 type MySQLRepository struct {
@@ -19,11 +19,14 @@ const (
 	initTableTemplate = `
 	CREATE TABLE IF NOT EXISTS %s (
 		id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-		orderGroupID bigint(20) NOT NULL DEFAULT 0,
 		userID bigint(20) NOT NULL DEFAULT 0,
+		orderID bigint(20) NOT NULL DEFAULT 0,
 		date varchar(256) NOT NULL DEFAULT 0,
-		ItemName bigint(20) NOT NULL DEFAULT 0,
-		count bigint(20) NOT NULL DEFAULT 0,
+		brand varchar(256) NOT NULL DEFAULT 0,
+		quantity bigint(20) NOT NULL DEFAULT 0,
+		price bigint(20) NOT NULL DEFAULT 0,
+		orderID varchar(256) NOT NULL DEFAULT 0,
+		imagePath varchar(256) NOT NULL DEFAULT 0,
 		UNIQUE KEY id (id)
 	  ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;	
 `
@@ -42,55 +45,74 @@ func NewMySQLRepository(db *sql.DB) (*MySQLRepository, error) {
 	}, nil
 }
 
-func (r *MySQLRepository) GetOrders(userID int64) ([]*model.Order, error) {
-	rows, err := r.db.Query("SELECT * FROM orders where userID=?", userID)
+func (r *MySQLRepository) GetOrdersWithGroupByOrderID(userID int64) ([]model.OrderHistory, error) {
+	rows, err := r.db.Query(`SELECT orderID,imagePath,name, brand, quantity, price FROM orders WHERE userID = ? GROUP BY orderID`, userID)
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error get orders: %v", err)
 	}
 
 	defer rows.Close()
 
-	var orders []*model.Order
+	var orderHistories []model.OrderHistory
+
 	for rows.Next() {
-		order := &model.Order{}
-		err := rows.Scan(&order.ID, &order.UserID, &order.Date, &order.ItemName, &order.Count)
+		var orderHistory model.OrderHistory
+		var order model.Order
+
+		err := rows.Scan(&orderHistory.ID, &orderHistory.ImagePath, &order.Name, &order.Brand, &order.Quantity, &order.Price)
+
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error get orders: %v", err)
 		}
-		orders = append(orders, order)
+
+		for _, orderH := range orderHistories {
+			if orderH.ID == orderHistory.ID {
+				orderHistory.Orders = append(orderHistory.Orders, order)
+			} else {
+				orderHistories = append(orderHistories, orderHistory)
+			}
+		}
 	}
 
-	return orders, nil
+	return orderHistories, nil
 }
 
-func (r *MySQLRepository) GetOrder(orderGroupID int64, userID int64) (*model.Order, error) {
-	q := "SELECT * FROM orders WHERE orderGroupID=? AND userID=?"
-	res := r.db.QueryRow(q, orderGroupID, userID)
+func (r *MySQLRepository) GetOrder(userID int64, orderID string) (model.OrderHistory, error) {
+	rows, err := r.db.Query(`SELECT orderID,imagePath,name, brand, quantity, price FROM orders WHERE userID = ? AND orderID = ?`, userID, orderID)
 
-	u := &model.Order{}
-
-	if err := res.Scan(&u.ID, &u.UserID, &u.Date, &u.ItemName, &u.Count); err != nil {
-		return nil, err
+	if err != nil {
+		return model.OrderHistory{}, fmt.Errorf("error get orders: %v", err)
 	}
 
-	return u, nil
-}
+	defer rows.Close()
 
-func (r *MySQLRepository) CreateOrder(order *model.Order, userID int64) error {
-	q := "INSERT INTO orders (userID, date, itemName, count) VALUES (?, ?, ?, ?)"
-	_, err := r.db.Exec(q, userID, order.Date, order.ItemName, order.Count)
+	var orderHistory model.OrderHistory
 
-	return err
-}
-func (r *MySQLRepository) GetlastOrder() (*model.Order, error) {
-	q := "SELECT * FROM orders ORDER BY id DESC LIMIT 1"
-	res := r.db.QueryRow(q)
+	for rows.Next() {
+		var order model.Order
 
-	u := &model.Order{}
+		err := rows.Scan(&orderHistory.ID, &orderHistory.ImagePath, &order.Name, &order.Brand, &order.Quantity, &order.Price)
 
-	if err := res.Scan(&u.ID, &u.UserID, &u.Date, &u.ItemName, &u.Count); err != nil {
-		return nil, err
+		if err != nil {
+			return model.OrderHistory{}, fmt.Errorf("error get orders: %v", err)
+		}
+
+		orderHistory.Orders = append(orderHistory.Orders, order)
 	}
 
-	return u, nil
+	return orderHistory, nil
+}
+
+func (r *MySQLRepository) SaveOrder(order []model.OrderResponse, userID int64, orderID string) error {
+	for _, order := range order {
+		_, err := r.db.Exec(`INSERT INTO orders (userID, orderID, date, brand, quantity, price,imagePath) VALUES (?, ?, ?, ?, ?, ?,?)`,
+			userID, orderID, time.Now().Format("2006-02-01"), order.Brand, order.Quantity, order.Price, order.ImagePath)
+
+		if err != nil {
+			return fmt.Errorf("error save orders: %v", err)
+		}
+	}
+
+	return nil
 }

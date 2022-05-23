@@ -49,7 +49,7 @@ func (s *Service) Login(user model.User, signingKey string) (*model.User, error)
 		return nil, errors.New("username or password wrong")
 	}
 	u.Password = ""
-	token, err := CreateToken(u.Email, time.Minute*5, signingKey)
+	token, err := CreateToken(u.Email, time.Minute*5000, signingKey)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (s *Service) RefreshToken(user *model.User, signingKey string) (*model.User
 		return nil, err
 	}
 	if found {
-		token, err := CreateToken(user.Email, time.Minute*5, signingKey)
+		token, err := CreateToken(user.Email, time.Minute*50000, signingKey)
 		if err != nil {
 			return nil, err
 		}

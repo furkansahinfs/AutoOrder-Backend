@@ -19,6 +19,7 @@ type Config struct {
 		Back  []map[string]string `yaml:"back"`
 	} `yaml:"enum"`
 	PythonBackendAddress string `yaml:"python_backend_address"`
+	FakeApiAddress       string `yaml:"fake_api_address"`
 }
 
 // structure of the API
@@ -66,6 +67,9 @@ func New(config *Config, svc service.Service, router *mux.Router, errors model.E
 	api.Router.HandleFunc("/api/v1/items/front", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetItemsFront)))).Methods("GET")
 	api.Router.HandleFunc("/api/v1/items/back", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetItemsBack)))).Methods("GET")
 	api.Router.HandleFunc("/api/v1/items/all", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetItemsAll)))).Methods("GET")
+
+	//order history endpoints
+	api.Router.HandleFunc("/api/v1/orderhistory", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.GetOrderHistory)))).Methods("GET")
 
 	// healtcheck endpoint
 	api.Router.HandleFunc("/api/v1/healtcheck", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.preflightHandler)))).Methods("POST")

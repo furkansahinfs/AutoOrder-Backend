@@ -1,9 +1,23 @@
 package model
 
+type OrderResponse struct {
+	Name      string `json:"name"`
+	Brand     int64  `json:"brand"`
+	Price     string `json:"price"`
+	Quantity  string `json:"quantity"`
+	ID        int64  `json:"id"`
+	ImagePath string `json:"image_path"`
+}
+
+type OrderHistory struct {
+	ID        int64   `json:"id"`
+	Orders    []Order `json:"orders"`
+	ImagePath string  `json:"image_path"`
+}
+
 type Order struct {
-	ID       int64  `json:"id"`
-	UserID   int64  `json:"user_id"`
-	Date     string `json:"date"`
-	ItemName string `json:"item_name"`
-	Count    int    `json:"count"`
+	Name     string `json:"name"`
+	Brand    int64  `json:"brand"`
+	Price    string `json:"price"`
+	Quantity string `json:"quantity"`
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/furkansahinfs/AutoOrder-Backend/pkg/model"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -93,15 +94,25 @@ func (a *API) GetImage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if len(uConfigItems) > 0 {
-			responseBodyString, err := a.send(path, uConfigItems)
+			responseBodyString, err := a.sendToImageAnalyse(path, uConfigItems)
 			if err != nil {
 				response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, err.Error())
 				return
 			}
-			a.service.GetOrdersService().CreateOrders(responseBodyString, user.ID)
-			// TODO : Save the result to database
 
-			response.Write(w, r, responseBodyString)
+			results, err := a.sendToFakeApi(responseBodyString)
+			if err != nil {
+				response.Errorf(w, r, fmt.Errorf("error getting making order from fake api : %v", err), http.StatusBadRequest, err.Error())
+				return
+			}
+
+			err = a.service.GetOrdersService().SaveOrders(results, user.ID, path)
+			if err != nil {
+				response.Errorf(w, r, fmt.Errorf("error getting saving orders to db info: %v", err), http.StatusBadRequest, err.Error())
+				return
+			}
+
+			response.Write(w, r, "")
 			return
 		} else {
 			response.Errorf(w, r, fmt.Errorf("error getting GetImage info: %v", err), http.StatusBadRequest, errors.New("User Dont have a configuration").Error())
@@ -114,7 +125,7 @@ func (a *API) GetImage(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (a *API) send(filePath string, config []string) (string, error) {
+func (a *API) sendToImageAnalyse(filePath string, config []string) (string, error) {
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
 	file, errFile1 := os.Open(filePath)
@@ -152,4 +163,30 @@ func (a *API) send(filePath string, config []string) (string, error) {
 		return "", err
 	}
 	return string(body), nil
+}
+
+func (a *API) sendToFakeApi(items string) ([]model.OrderResponse, error) {
+	// make http post
+	jsonData, err := json.Marshal(items)
+
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.Post(a.config.FakeApiAddress, "application/json",
+		bytes.NewBuffer(jsonData))
+
+	if err != nil {
+		return nil, err
+	}
+
+	var res []model.OrderResponse
+
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+
 }
