@@ -25,7 +25,6 @@ const (
 		brand varchar(256) NOT NULL DEFAULT 0,
 		quantity bigint(20) NOT NULL DEFAULT 0,
 		price bigint(20) NOT NULL DEFAULT 0,
-		orderID varchar(256) NOT NULL DEFAULT 0,
 		imagePath varchar(256) NOT NULL DEFAULT 0,
 		UNIQUE KEY id (id)
 	  ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;	
