@@ -46,7 +46,7 @@ func NewMySQLRepository(db *sql.DB) (*MySQLRepository, error) {
 }
 
 func (r *MySQLRepository) GetOrdersWithGroupByOrderID(userID int64) ([]model.OrderHistory, error) {
-	rows, err := r.db.Query(`SELECT orderID,imagePath,name, brand, quantity, price FROM orders WHERE userID = ? GROUP BY orderID`, userID)
+	rows, err := r.db.Query(`SELECT orderID,imagePath,name, brand, quantity, price FROM orders WHERE userID = ?`, userID)
 
 	if err != nil {
 		return nil, fmt.Errorf("error get orders: %v", err)
