@@ -145,7 +145,9 @@ func (a *API) sendToImageAnalyse(filePath string, config []string) (string, erro
 		return "", err
 	}
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: time.Minute * 5,
+	}
 	req, err := http.NewRequest("POST", a.config.PythonBackendAddress, payload)
 
 	if err != nil {
