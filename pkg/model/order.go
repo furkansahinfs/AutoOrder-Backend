@@ -1,12 +1,12 @@
 package model
 
 type OrderResponse struct {
-	Name      string `json:"name"`
-	Brand     string `json:"brand"`
-	Price     int    `json:"price"`
-	Quantity  int    `json:"quantity"`
-	ID        int64  `json:"id"`
-	ImagePath string `json:"image_path"`
+	Name      string  `json:"name"`
+	Brand     string  `json:"brand"`
+	Price     float64 `json:"price"`
+	Quantity  int     `json:"quantity"`
+	ID        int64   `json:"id"`
+	ImagePath string  `json:"image_path"`
 }
 
 type OrderResponseJava struct {
