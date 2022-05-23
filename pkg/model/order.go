@@ -1,8 +1,8 @@
 package model
 
 type OrderResponse struct {
-	Name      string  `json:"name"`
-	Brand     string  `json:"brand"`
+	Name      string  `json:"productName"`
+	Brand     string  `json:"brandName"`
 	Price     float64 `json:"price"`
 	Quantity  int     `json:"quantity"`
 	ID        int64   `json:"id"`
@@ -23,8 +23,8 @@ type OrderHistory struct {
 }
 
 type Order struct {
-	Name      string  `json:"name"`
-	Brand     string  `json:"brand"`
+	Name      string  `json:"productName"`
+	Brand     string  `json:"brandName"`
 	Price     float64 `json:"price"`
 	Quantity  int     `json:"quantity"`
 	ImagePath string  `json:"image_path"`
