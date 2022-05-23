@@ -13,7 +13,7 @@ type OrderResponseJava struct {
 	OrderResponse []OrderResponse `json:"data"`
 }
 type OrderRequestJava struct {
-	OrderRequest []string `json:"orderItems"`
+	OrderRequest string `json:"orderItems"`
 }
 
 type OrderHistory struct {

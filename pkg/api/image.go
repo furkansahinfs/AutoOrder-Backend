@@ -168,15 +168,9 @@ func (a *API) sendToImageAnalyse(filePath string, config []string) (string, erro
 }
 
 func (a *API) sendToFakeApi(items string) ([]model.OrderResponse, error) {
-	fmt.Println(items)
-	// make http post
-	//string trim characters
-	items = strings.Replace(items, "[", "", -1)
-	items = strings.Replace(items, "]", "", -1)
-	items = strings.Replace(items, "\"", "", -1)
-	itemArray := strings.Split(items, ",")
+
 	req := model.OrderRequestJava{
-		OrderRequest: itemArray,
+		OrderRequest: items,
 	}
 	jsonData, err := json.Marshal(req)
 
