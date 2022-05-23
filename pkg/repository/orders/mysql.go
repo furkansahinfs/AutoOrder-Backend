@@ -106,6 +106,7 @@ func (r *MySQLRepository) GetOrder(userID int64, orderID string) (model.OrderHis
 
 func (r *MySQLRepository) SaveOrder(order []model.OrderResponse, userID int64, orderID string) error {
 	for _, order := range order {
+		fmt.Println(order.ImagePath)
 		_, err := r.db.Exec(`INSERT INTO orders (userID, orderID, date, brand, quantity, price,imagePath) VALUES (?, ?, ?, ?, ?, ?,?)`,
 			userID, orderID, time.Now().Format("2006-02-01"), order.Brand, order.Quantity, order.Price, order.ImagePath)
 
