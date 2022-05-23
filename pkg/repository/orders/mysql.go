@@ -54,32 +54,33 @@ func (r *MySQLRepository) GetOrdersWithGroupByOrderID(userID int64) ([]model.Ord
 
 	defer rows.Close()
 
-	var orderHistories []model.OrderHistory
+	orderHistories := make(map[string][]model.Order)
 
 	for rows.Next() {
 		var orderHistory model.OrderHistory
 		var order model.Order
 
-		err := rows.Scan(&orderHistory.ID, &orderHistory.ImagePath, &order.Name, &order.Brand, &order.Quantity, &order.Price)
+		err := rows.Scan(&orderHistory.ID, &order.ImagePath, &order.Name, &order.Brand, &order.Quantity, &order.Price)
 
 		if err != nil {
 			return nil, fmt.Errorf("error get orders: %v", err)
 		}
 
-		fmt.Println("orderHistory: ", orderHistory)
-		fmt.Println("order: ", order)
-		for index, orderH := range orderHistories {
-			if orderH.ID == orderHistory.ID {
-				orderHistories[index].Orders = append(orderHistories[index].Orders, order)
+		orderHistories[orderHistory.ID] = append(orderHistories[orderHistory.ID], order)
 
-			} else {
-				orderHistory.Orders = append(orderHistory.Orders, order)
-				orderHistories = append(orderHistories, orderHistory)
-			}
-		}
 	}
 
-	return orderHistories, nil
+	var orderHistoriesSlice []model.OrderHistory
+
+	for index, orderHistory := range orderHistories {
+		orderHistoriesSlice = append(orderHistoriesSlice, model.OrderHistory{
+			Orders:    orderHistory,
+			ImagePath: orderHistory[0].ImagePath,
+			ID:        index})
+
+	}
+
+	return orderHistoriesSlice, nil
 }
 
 func (r *MySQLRepository) GetOrder(userID int64, orderID string) (model.OrderHistory, error) {

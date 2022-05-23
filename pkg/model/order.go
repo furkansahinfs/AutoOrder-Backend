@@ -23,8 +23,9 @@ type OrderHistory struct {
 }
 
 type Order struct {
-	Name     string  `json:"name"`
-	Brand    string  `json:"brand"`
-	Price    float64 `json:"price"`
-	Quantity int     `json:"quantity"`
+	Name      string  `json:"name"`
+	Brand     string  `json:"brand"`
+	Price     float64 `json:"price"`
+	Quantity  int     `json:"quantity"`
+	ImagePath string  `json:"image_path"`
 }
