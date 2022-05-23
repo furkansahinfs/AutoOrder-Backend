@@ -106,7 +106,7 @@ func (a *API) GetImage(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			err = a.service.GetOrdersService().SaveOrders(results, user.ID, path)
+			err = a.service.GetOrdersService().SaveOrders(results, user.ID, strings.Replace(path, a.config.ImagePath, "", -1))
 			if err != nil {
 				response.Errorf(w, r, fmt.Errorf("error getting saving orders to db info: %v", err), http.StatusBadRequest, err.Error())
 				return

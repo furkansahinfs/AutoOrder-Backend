@@ -46,7 +46,7 @@ func NewMySQLRepository(db *sql.DB) (*MySQLRepository, error) {
 }
 
 func (r *MySQLRepository) GetOrdersWithGroupByOrderID(userID int64) ([]model.OrderHistory, error) {
-	rows, err := r.db.Query(`SELECT orderID,imagePath,name, brand, quantity, price FROM orders WHERE userID = ?`, userID)
+	rows, err := r.db.Query(`SELECT orderID,imagePath, name, brand, quantity, price FROM orders WHERE userID = ?`, userID)
 
 	if err != nil {
 		return nil, fmt.Errorf("error get orders: %v", err)
@@ -112,8 +112,8 @@ func (r *MySQLRepository) GetOrder(userID int64, orderID string) (model.OrderHis
 func (r *MySQLRepository) SaveOrder(order []model.OrderResponse, userID int64, orderID string) error {
 	for _, order := range order {
 		fmt.Println(order.ImagePath)
-		_, err := r.db.Exec(`INSERT INTO orders (userID, orderID, date, brand, quantity, price,imagePath) VALUES (?, ?, ?, ?, ?, ?,?)`,
-			userID, orderID, time.Now().Format("2006-02-01"), order.Brand, order.Quantity, order.Price, order.ImagePath)
+		_, err := r.db.Exec(`INSERT INTO orders (userID, orderID, date, brand, quantity, price,imagePath,name) VALUES (?, ?, ?, ?, ?, ?,?,?)`,
+			userID, orderID, time.Now().Format("2006-02-01"), order.Brand, order.Quantity, order.Price, order.ImagePath, order.Name)
 
 		if err != nil {
 			return fmt.Errorf("error save orders: %v", err)

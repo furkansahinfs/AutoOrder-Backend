@@ -73,6 +73,11 @@ func New(config *Config, svc service.Service, router *mux.Router, errors model.E
 
 	// healtcheck endpoint
 	api.Router.HandleFunc("/api/v1/healtcheck", api.corsMiddleware(api.logMiddleware(api.jwtmiddleware(api.preflightHandler)))).Methods("POST")
+
+	//image serve
+	s := http.StripPrefix("/api/v1/images/", http.FileServer(http.Dir("./pkg/images/")))
+	api.Router.PathPrefix("/api/v1/images/").Handler(s)
+
 	return api, nil
 
 }
