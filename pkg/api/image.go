@@ -182,13 +182,13 @@ func (a *API) sendToFakeApi(items string) ([]model.OrderResponse, error) {
 		return nil, err
 	}
 
-	var res []model.OrderResponse
+	var res model.OrderResponseJava
 
 	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
 		return nil, err
 	}
 
-	return res, nil
+	return res.OrderResponse, nil
 
 }

@@ -9,6 +9,9 @@ type OrderResponse struct {
 	ImagePath string `json:"image_path"`
 }
 
+type OrderResponseJava struct {
+	OrderResponse []OrderResponse `json:"orderItems"`
+}
 type OrderHistory struct {
 	ID        int64   `json:"id"`
 	Orders    []Order `json:"orders"`
