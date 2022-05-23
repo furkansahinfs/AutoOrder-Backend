@@ -2,9 +2,9 @@ package model
 
 type OrderResponse struct {
 	Name      string `json:"name"`
-	Brand     int64  `json:"brand"`
-	Price     string `json:"price"`
-	Quantity  string `json:"quantity"`
+	Brand     string `json:"brand"`
+	Price     int    `json:"price"`
+	Quantity  int    `json:"quantity"`
 	ID        int64  `json:"id"`
 	ImagePath string `json:"image_path"`
 }
