@@ -168,6 +168,7 @@ func (a *API) sendToImageAnalyse(filePath string, config []string) (string, erro
 }
 
 func (a *API) sendToFakeApi(items string) ([]model.OrderResponse, error) {
+	fmt.Println(items)
 	// make http post
 	itemArray := strings.Split(items, ",")
 	req := model.OrderRequestJava{
@@ -192,6 +193,7 @@ func (a *API) sendToFakeApi(items string) ([]model.OrderResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(res.OrderResponse)
 
 	return res.OrderResponse, nil
 
