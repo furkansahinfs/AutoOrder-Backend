@@ -17,14 +17,14 @@ type OrderRequestJava struct {
 }
 
 type OrderHistory struct {
-	ID        int64   `json:"id"`
+	ID        string  `json:"id"`
 	Orders    []Order `json:"orders"`
 	ImagePath string  `json:"image_path"`
 }
 
 type Order struct {
-	Name     string `json:"name"`
-	Brand    int64  `json:"brand"`
-	Price    string `json:"price"`
-	Quantity string `json:"quantity"`
+	Name     string  `json:"name"`
+	Brand    string  `json:"brand"`
+	Price    float64 `json:"price"`
+	Quantity int     `json:"quantity"`
 }
